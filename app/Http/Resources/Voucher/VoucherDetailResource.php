@@ -19,8 +19,18 @@ class VoucherDetailResource extends JsonResource
             "staff" => $this->user->name,
             "voucher_no" => $this->voucher_number,
             "time" => HelperController::parseReturnDate($this->created_at, true),
-            "cost" => $this->cost,
-            "voucher_records" => VoucherRecordResource::collection($this->voucherRecords)
+            "sub_total" => $this->sub_total,
+            "total" => $this->total,
+            "deli_fee" => $this->deli_fee,
+            "customer_name" => $this->customer_name,
+            "customer_phone" => $this->customer_phone,
+            "customer_city" => $this->customer_city,
+            "customer_address" => $this->customer_address,
+            "is_kpay" => $this->is_kpay,
+            "status" => $this->status,
+            "remark" => $this->remark,
+            "voucher_records" => VoucherRecordResource::collection($this->voucherRecords),
+
         ];
     }
 }
