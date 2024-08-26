@@ -33,7 +33,7 @@ class VoucherDetailResource extends JsonResource
             "customer_phone" => $this->customer_phone,
             "customer_city" => $this->customer_city,
             "customer_address" => $this->customer_address,
-            "is_kpay" => $this->is_kpay,
+            "payment_method" => $this->payment_method,
             "status" => $this->status,
             "remark" => $this->remark,
             "voucher_records" => VoucherRecordResource::collection($this->voucherRecords),

@@ -29,8 +29,9 @@ class Voucher extends Model
         "customer_phone",
         "customer_city",
         "customer_address",
-        "is_kpay",
+        "payment_method",
         "status",
+        'remark'
     ];
 
     protected $casts = [
@@ -45,7 +46,7 @@ class Voucher extends Model
         "pay_amount" => "integer",
         "reduce_amount" => "integer",
         "change" => "integer",
-        "is_kpay" => "integer",
+        "payment_method" => "string",
         "debt_amount"
     ];
 

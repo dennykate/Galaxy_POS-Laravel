@@ -29,8 +29,9 @@ return new class extends Migration
             $table->string('customer_phone');
             $table->string('customer_city');
             $table->text('customer_address');
-            $table->boolean('is_kpay');
+            $table->string('payment_method');
             $table->string('status');
+            $table->text('remark');
             $table->timestamps();
         });
     }

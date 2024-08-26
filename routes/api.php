@@ -23,6 +23,7 @@ use App\Http\Controllers\User\PaySalaryController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Voucher\CashierController;
 use App\Http\Controllers\Voucher\CheckoutController;
+use App\Http\Controllers\Voucher\EditCheckoutController;
 use App\Http\Controllers\Voucher\VoucherController;
 use App\Models\Customer;
 use Illuminate\Support\Facades\Route;
@@ -81,6 +82,7 @@ Route::prefix("v1")->group(function () {
         Route::post("purchases/{id}/receive", [PurchaseController::class, "allReceive"]);
 
         Route::post("checkout", [CheckoutController::class, "checkout"]);
+        Route::put("checkout/{id}", [EditCheckoutController::class, "execute"]);
 
         Route::apiResource("customers", CustomerController::class)->except("update");
         Route::post("customers/update/{id}", [CustomerController::class, "update"]);

@@ -181,7 +181,7 @@ class CheckoutController extends Controller
                 "customer_phone" => $request->customer_phone,
                 "customer_city" => $request->customer_city,
                 "customer_address" => $request->customer_address,
-                "is_kpay" => $request->is_kpay,
+                "payment_method" => $request->payment_method,
                 "status" => $request->status,
                 "remark" => $request->remark,
             ]);
@@ -222,6 +222,7 @@ class CheckoutController extends Controller
                 "change" => $change,
                 "debt_amount" => 0,
                 "items" => VoucherRecordResource::collection($insertedRecords),
+                "payment_method" => $voucher->payment_method
 
             ]]);
         });
