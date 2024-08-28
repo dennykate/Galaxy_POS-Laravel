@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -17,32 +19,65 @@ class HelperController extends Controller
     // $orderBy = $request->input('order_by', 'id'); 
     // $orderDirection = $request->input('order_direction', 'desc'); 
 
-    public static function findAllQuery($Model, $request, $columns, $additionalConditions = [], $orderBy = 'id', $orderDirection = 'desc')
+    public static function findAllQuery(Model $model, Request $request, array $searchableColumns, array $additionalConditions = [], string $orderBy = 'id', string $orderDirection = 'desc', string $trashedOption = 'without')
     {
-        return $Model::when($request->has("search"), function ($query) use ($columns, $request) {
-            $query->where(function (Builder $builder) use ($columns, $request) {
-                $search = $request->search;
+        // Initialize query with soft delete handling
+        $trashedOption = $request->query("restore_type", "without");
 
-                foreach ($columns as $index => $column) {
-                    if ($index === 0) {
-                        $builder->where($column, 'like', '%' . $search . '%');
-                    } else {
-                        $builder->orWhere($column, 'like', '%' . $search . '%');
-                    }
+        switch ($trashedOption) {
+            case 'only':
+                $query = $model::onlyTrashed(); // Only trashed records
+                break;
+            case 'with':
+                $query = $model::withTrashed(); // Both trashed and non-trashed
+                break;
+            default:
+                $query = $model::query(); // Default, non-trashed
+                break;
+        }
+
+        $rOrderBy = $request->query("sort_by", "id");
+        $rOrderDirection = $request->query("sort_type", "desc");
+
+        // Search filter
+        if ($request->filled('search')) {
+            $query->where(function (Builder $builder) use ($searchableColumns, $request) {
+                foreach ($searchableColumns as $index => $column) {
+                    $method = $index === 0 ? 'where' : 'orWhere';
+                    $builder->{$method}($column, 'like', '%' . $request->search . '%');
                 }
             });
-        })->when($request->has('start_date') && $request->has('end_date'), function ($query) use ($request) {
-            $query->whereBetween('created_at', [$request->start_date, Carbon::parse($request->end_date)->addDay()]);
-        })->when($request->has('filters'), function ($query) use ($request) {
-            $filters = explode("_", $request->filters);
+        }
+
+        // Date range filter
+        if ($request->filled(['start_date', 'end_date'])) {
+            $query->whereBetween('created_at', [
+                $request->start_date,
+                Carbon::parse($request->end_date)->addDay(),
+            ]);
+        }
+
+        // Custom filters
+        if ($request->filled('filters')) {
+            $filters = explode('_', $request->filters);
             $query->where($filters[0], $filters[1]);
-        })->when(!empty($additionalConditions), function ($query) use ($additionalConditions) {
-            // Add additional WHERE conditions based on the provided array
-            foreach ($additionalConditions as $condition) {
-                $query->where($condition[0], $condition[1], $condition[2]);
+        }
+
+        // Filter parameter
+        if ($request->filled('filter')) {
+            foreach ($request->filter as $key => $value) {
+                $query->where($key, 'like', '%' . $value . '%');
             }
-        })->orderBy($orderBy, $orderDirection)
-            ->paginate($request->limit ?? 20)
+        }
+
+        // Additional conditions
+        foreach ($additionalConditions as $condition) {
+            $query->where($condition[0], $condition[1], $condition[2]);
+        }
+
+        // Ordering and pagination
+        return $query->orderBy($rOrderBy, $rOrderDirection)
+            ->paginate($request->input('limit', 20))
             ->withQueryString();
     }
 

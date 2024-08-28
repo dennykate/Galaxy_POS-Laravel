@@ -31,7 +31,8 @@ class Voucher extends Model
         "customer_address",
         "payment_method",
         "status",
-        'remark'
+        'remark',
+        'order_date'
     ];
 
     protected $casts = [

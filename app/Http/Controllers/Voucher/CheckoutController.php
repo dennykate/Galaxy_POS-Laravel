@@ -182,6 +182,7 @@ class CheckoutController extends Controller
                 "customer_city" => $request->customer_city,
                 "customer_address" => $request->customer_address,
                 "payment_method" => $request->payment_method,
+                "order_date" => $request->order_date,
                 "status" => $request->status,
                 "remark" => $request->remark,
             ]);

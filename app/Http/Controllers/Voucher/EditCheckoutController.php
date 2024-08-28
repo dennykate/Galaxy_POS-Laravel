@@ -23,6 +23,7 @@ class EditCheckoutController extends Controller
         $order->status = $request->status ?? $order->status;
         $order->deli_fee = $request->deli_fee ?? $order->deli_fee;
         $order->remark = $request->remark ?? $order->remark;
+        $order->order_date = $request->order_date ?? $order->order_date;
 
         $order->save();
 

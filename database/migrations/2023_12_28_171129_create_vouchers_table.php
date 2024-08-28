@@ -31,7 +31,8 @@ return new class extends Migration
             $table->text('customer_address');
             $table->string('payment_method');
             $table->string('status');
-            $table->text('remark');
+            $table->text('remark')->nullable();
+            $table->string('order_date');
             $table->timestamps();
         });
     }

@@ -38,7 +38,7 @@ class ProductController extends Controller
     public function index(Request $request)
     {
 
-        $products = HelperController::findAllQuery(Product::class, $request, ["name", "primary_price", "actual_price"]);
+        $products = HelperController::findAllQuery(new Product, $request, ["name", "primary_price", "actual_price"]);
 
         return ProductResource::collection($products);
     }
