@@ -19,7 +19,7 @@ class PurchaseController extends Controller
      */
     public function index(Request $request)
     {
-        $purchases = HelperController::findAllQuery(Purchase::class, $request, ["place", "cost", "item_quantity", "remark"]);
+        $purchases = HelperController::findAllQuery(new Purchase, $request, ["place", "cost", "item_quantity", "remark"]);
 
         return PurchaseResource::collection($purchases);
     }

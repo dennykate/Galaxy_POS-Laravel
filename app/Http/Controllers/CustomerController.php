@@ -22,7 +22,7 @@ class CustomerController extends Controller
             return response()->json(["data" => []]);
         }
 
-        $customers = HelperController::findAllQuery(Customer::class, $request, ["name", "phone", "address"]);
+        $customers = HelperController::findAllQuery(new Customer, $request, ["name", "phone", "address"]);
 
         return CustomersResource::collection($customers);
     }
@@ -102,7 +102,7 @@ class CustomerController extends Controller
     public function debtRecords(Request $request, string $id)
     {
         $additionalConditions = [["customer_id", "=", decrypt($id)]];
-        $debts = HelperController::findAllQuery(Debt::class, $request, [], $additionalConditions);
+        $debts = HelperController::findAllQuery(new Debt, $request, [], $additionalConditions);
 
         return DebtResource::collection($debts);
     }

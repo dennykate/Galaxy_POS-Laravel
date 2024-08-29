@@ -225,7 +225,7 @@ class ProductController extends Controller
     public function productStockHistories(Request $request, string $id)
     {
         $additionalConditions = [["product_id", "=", decrypt($id)]];
-        $stockHistories = HelperController::findAllQuery(Stock::class, $request, [], $additionalConditions);
+        $stockHistories = HelperController::findAllQuery(new Stock, $request, [], $additionalConditions);
 
         return StockHistoryResource::collection($stockHistories);
     }

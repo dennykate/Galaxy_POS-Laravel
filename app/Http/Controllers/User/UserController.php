@@ -19,7 +19,7 @@ class UserController extends Controller
     {
         if (!Gate::allows("checkPermission", "manager")) return response()->json(["message" => "လုပ်ပိုင်ခွင့်မရှိပါ"], 403);
 
-        $users = HelperController::findAllQuery(User::class, $request, ["name", "phone", "salary"]);
+        $users = HelperController::findAllQuery(new User, $request, ["name", "phone", "salary"]);
 
         return UserResource::collection($users);
     }

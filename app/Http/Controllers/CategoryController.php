@@ -29,7 +29,7 @@ class CategoryController extends Controller
      */
     public function index(Request $request)
     {
-        $categories = HelperController::findAllQuery(Category::class, $request, ["name", "remark"]);
+        $categories = HelperController::findAllQuery(new Category, $request, ["name", "remark"]);
 
         return CategoryResource::collection($categories);
     }

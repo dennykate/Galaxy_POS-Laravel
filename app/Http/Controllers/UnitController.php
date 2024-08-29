@@ -33,7 +33,7 @@ class UnitController extends Controller
     {
         if (!Gate::allows("checkPermission", "all")) return response()->json(["message" => "လုပ်ပိုင်ခွင့်မရှိပါ"], 403);
 
-        $units = HelperController::findAllQuery(Unit::class, $request, ["name"]);
+        $units = HelperController::findAllQuery(new Unit, $request, ["name"]);
 
         return UnitResource::collection($units);
     }

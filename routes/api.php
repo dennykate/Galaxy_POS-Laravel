@@ -24,6 +24,7 @@ use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Voucher\CashierController;
 use App\Http\Controllers\Voucher\CheckoutController;
 use App\Http\Controllers\Voucher\EditCheckoutController;
+use App\Http\Controllers\Voucher\MenuController;
 use App\Http\Controllers\Voucher\VoucherController;
 use App\Models\Customer;
 use Illuminate\Support\Facades\Route;
@@ -63,6 +64,8 @@ Route::prefix("v1")->group(function () {
         Route::get("cashiers", [CashierController::class, "index"]);
 
         Route::apiResource("vouchers", VoucherController::class)->only(["index", "show", "destroy"]);
+
+        Route::get('menus', [MenuController::class, 'index']);
 
         Route::apiResource("products", ProductController::class)->except("update");
         Route::post("products/{id}/update", [ProductController::class, "update"]);

@@ -18,7 +18,7 @@ class ExpenseController extends Controller
      */
     public function index(Request $request)
     {
-        $expense = HelperController::findAllQuery(Expense::class, $request, ["description", "amount"]);
+        $expense = HelperController::findAllQuery(new Expense, $request, ["description", "amount"]);
 
         return ExpenseResource::collection($expense);
     }

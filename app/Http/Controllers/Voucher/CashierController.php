@@ -14,7 +14,7 @@ class CashierController extends Controller
     {
         $additionalConditions = [["stock", ">", 0]];
         $products = HelperController::findAllQuery(
-            Product::class,
+            new Product,
             $request,
             ["name", "primary_price", "actual_price"]
         );

@@ -23,7 +23,7 @@ class StockController extends Controller
         // $additionalConditions = [["stock", "<=", 20]];
         $additionalConditions = [];
 
-        $products = HelperController::findAllQuery(Product::class, $request, [], $additionalConditions, $orderBy, $orderDirection);
+        $products = HelperController::findAllQuery(new Product, $request, [], $additionalConditions, $orderBy, $orderDirection);
 
         return StockResource::collection($products);
     }
@@ -96,7 +96,7 @@ class StockController extends Controller
         $orderDirection = $request->input('order_direction', 'asc');
         $additionalConditions = [["stock", "<=", 20]];
 
-        $products = HelperController::findAllQuery(Product::class, $request, [], $additionalConditions, $orderBy, $orderDirection);
+        $products = HelperController::findAllQuery(new Product, $request, [], $additionalConditions, $orderBy, $orderDirection);
 
         return StockResource::collection($products);
     }
