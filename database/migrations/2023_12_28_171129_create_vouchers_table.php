@@ -32,7 +32,7 @@ return new class extends Migration
             $table->string('payment_method');
             $table->string('status');
             $table->text('remark')->nullable();
-            $table->string('order_date');
+            $table->timestamp('order_date');
             $table->timestamps();
         });
     }

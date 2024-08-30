@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -51,6 +52,8 @@ class Voucher extends Model
         "debt_amount"
     ];
 
+    protected $dates = ['order_date'];
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -72,5 +75,16 @@ class Voucher extends Model
         $voucherNumber = str_pad($nextNumber, 6, '0', STR_PAD_LEFT);
 
         return $voucherNumber;
+    }
+
+    public function setOrderDateAttribute($value)
+    {
+        $this->attributes['order_date'] = Carbon::createFromFormat('d-m-Y', $value);
+    }
+
+    // Getter for order_date
+    public function getOrderDateAttribute($value)
+    {
+        return Carbon::parse($value)->format('d-m-Y');
     }
 }

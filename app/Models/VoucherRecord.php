@@ -19,6 +19,11 @@ class VoucherRecord extends Model
         "voucher_id" => "string"
     ];
 
+    public function voucher()
+    {
+        return $this->belongsTo(Voucher::class);
+    }
+
     public function product()
     {
         return $this->belongsTo(Product::class);
