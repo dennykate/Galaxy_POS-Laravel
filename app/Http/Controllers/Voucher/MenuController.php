@@ -20,8 +20,10 @@ class MenuController extends Controller
         $products = VoucherRecord::select('product_id')
             ->selectRaw('SUM(quantity) as total_quantity')
             ->whereHas('voucher', function ($query) use ($startDate, $endDate) {
+                $query->whereNot('status', 'ရှင်းပြီး');
                 $query->whereBetween('order_date', [$startDate, $endDate]);
             })
+
             ->groupBy('product_id')
             ->with('product:id,name,image,actual_price,primary_price')
             ->get()
@@ -33,6 +35,7 @@ class MenuController extends Controller
 
         // Get the list grouped by customer_city and count it
         $cities = Voucher::select('customer_city as city')
+            ->whereNot('status', 'ရှင်းပြီး')
             ->selectRaw('COUNT(*) as total')
             ->whereBetween('order_date', [$startDate, $endDate])
             ->groupBy('customer_city')
