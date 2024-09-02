@@ -16,7 +16,7 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         User::factory()->create([
-            "name" => "Tech Area",
+            "name" => "Thwe Thwe",
             "phone" => "09955099985",
             "birth_date" => Carbon::now()->toDateString(),
             "join_date" =>  Carbon::now()->toDateString(),
