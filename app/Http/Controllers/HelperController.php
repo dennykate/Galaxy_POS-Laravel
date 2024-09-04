@@ -51,7 +51,9 @@ class HelperController extends Controller
 
         // Date range filter
         if ($request->filled(['start_date', 'end_date'])) {
-            $query->whereBetween('created_at', [
+            $filter_date = $request->query('filter_date', 'created_at');
+
+            $query->whereBetween($filter_date, [
                 $request->start_date,
                 Carbon::parse($request->end_date)->addDay(),
             ]);

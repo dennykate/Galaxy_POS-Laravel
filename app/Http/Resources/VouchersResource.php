@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Http\Controllers\HelperController;
+use App\Http\Resources\Voucher\VoucherRecordResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -37,6 +38,7 @@ class VouchersResource extends JsonResource
             "payment_method" => $this->payment_method,
             "status" => $this->status,
             "remark" => $this->remark,
+            "voucher_records" => VoucherRecordResource::collection($this->voucherRecords),
         ];
     }
 }
