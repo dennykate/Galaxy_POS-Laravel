@@ -30,7 +30,7 @@ return new class extends Migration
             $table->string('customer_city');
             $table->text('customer_address');
             $table->string('payment_method');
-            $table->string('status');
+            $table->string('status')->nullable();
             $table->text('remark')->nullable();
             $table->timestamp('order_date');
             $table->timestamps();
