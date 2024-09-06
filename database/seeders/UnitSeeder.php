@@ -13,6 +13,15 @@ class UnitSeeder extends Seeder
      */
     public function run(): void
     {
+        foreach (["ခု", "ချောင်း", "အိတ်"] as $value) {
+            Unit::insert([
+                "name" => $value,
+                "unit_type_id" => 3,
+                "created_at" => now(),
+                "updated_at" => now()
+            ]);
+        }
+
         foreach (["ကျပ်သား", "ပိဿာ"] as $value) {
             Unit::insert([
                 "name" => $value,
@@ -26,15 +35,6 @@ class UnitSeeder extends Seeder
             Unit::insert([
                 "name" => $value,
                 "unit_type_id" => 2,
-                "created_at" => now(),
-                "updated_at" => now()
-            ]);
-        }
-
-        foreach (["ချောင်း", "ခု", "အိတ်"] as $value) {
-            Unit::insert([
-                "name" => $value,
-                "unit_type_id" => 3,
                 "created_at" => now(),
                 "updated_at" => now()
             ]);

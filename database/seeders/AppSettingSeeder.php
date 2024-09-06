@@ -20,7 +20,7 @@ class AppSettingSeeder extends Seeder
             'address' => 'Hay Mar Ga Naing Street',
             'google_map_url' => 'https://maps.google.com/example',
             'user_id' => 1,
-            // 'logo' => "https://i.postimg.cc/FzL0bSm3/pngtree-building-and-construction-logo-design-template-image-317780.jpg"
+            'logo' => "https://i.postimg.cc/rFVcWyRn/Lg-T2-S5-POvx54-Ts-N7-Qy2fed8-XXUzi8o-HU1-SSTp-Vs-X.png"
         ]);
     }
 }
