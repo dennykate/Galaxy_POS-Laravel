@@ -16,6 +16,8 @@ class VoucherRecordResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            "id" => $this->id,
+            "product" => $this->product,
             "image" => HelperController::parseReturnImage($this->product->image),
             "name" => $this->product->name,
             "unit" => $this->unit->name,

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Voucher;
 
 use App\Http\Controllers\Controller;
+use App\Models\Product;
 use App\Models\Voucher;
+use App\Models\VoucherRecord;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -25,8 +27,51 @@ class EditCheckoutController extends Controller
         $order->remark = $request->remark ?? $order->remark;
         $order->order_date = $request->order_date ?? $order->order_date;
 
+        $total_cost = 0;
+        $total_actual_cost = 0;
+        $total_profit = 0;
+        $total_quantity = 0;
+
+        foreach ($request['orders'] as $req_order) {
+            $product = Product::find($req_order['product']['id']);
+            $cost = $req_order['quantity'] * $product->primary_price;
+            $actual_cost = $req_order["quantity"] *   $product->actual_price;
+
+            $new_stock =  $product->stock - $req_order["quantity"];
+
+            if ($req_order['id']) {
+                $voucher_record = VoucherRecord::find($req_order['id']);
+
+                $voucher_record->quantity = $req_order['quantity'];
+                $voucher_record->cost = $cost;
+
+                $voucher_record->save();
+            } else {
+                $voucher_record = VoucherRecord::create([
+                    "unit_id" => $product->primary_unit_id,
+                    "product_id" => $product->id,
+                    "quantity" => $req_order['quantity'],
+                    "cost" => $cost,
+                    "voucher_id" => $id
+                ]);
+            }
+
+            $total_cost += $cost;
+            $total_actual_cost += $actual_cost;
+            $total_profit += $cost - $actual_cost;
+
+            $product->stock = $new_stock;
+            $product->save();
+        }
+
+        $order->sub_total = $total_cost;
+        $order->total = $total_cost + $request->deli_fee;
+        $order->deli_fee = $request->deli_fee;
+        $order->profit = $total_profit;
+        $order->actual_cost =  $total_actual_cost ?? 0;
+
         $order->save();
 
-        return response()->json(['data' => $order]);
+        return response()->json(["message" => "အောင်မြင်ပါသည်", "data" => $order]);
     }
 }
