@@ -19,6 +19,7 @@ use App\Http\Controllers\UnitController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\Report\ReportController;
 use App\Http\Controllers\User\AuthController;
+use App\Http\Controllers\User\DeliController;
 use App\Http\Controllers\User\PaySalaryController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Voucher\CashierController;
@@ -110,6 +111,11 @@ Route::prefix("v1")->group(function () {
             Route::post("migration", [OperationController::class, "migration"]);
             Route::post("storage-link", [OperationController::class, "storageLink"]);
             Route::post("cache-clear", [OperationController::class, "clearCache"]);
+        });
+
+        Route::apiResource('delis', DeliController::class)->except(['deliWay']);
+        Route::prefix('delis')->group(function () {
+            Route::get('ways/get', [DeliController::class, 'deliWay']);
         });
     });
 

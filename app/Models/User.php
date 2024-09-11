@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Mockery\Undefined;
 
 class User extends Authenticatable
 {
@@ -67,5 +68,10 @@ class User extends Authenticatable
     public function salaries()
     {
         return $this->hasMany(PaySalary::class);
+    }
+
+    public function deli()
+    {
+        return $this->hasOne(DeliWay::class);
     }
 }
