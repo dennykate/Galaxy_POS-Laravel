@@ -31,6 +31,7 @@ class VoucherDetailResource extends JsonResource
             "promotion_amount" => $this->promotion_amount,
             "customer_name" => $this->customer_name,
             "customer_phone" => $this->customer_phone,
+            "order_date" => $this->order_date,
             "customer_city" => $this->customer_city,
             "customer_address" => $this->customer_address,
             "payment_method" => $this->payment_method,

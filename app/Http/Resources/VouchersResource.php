@@ -29,6 +29,7 @@ class VouchersResource extends JsonResource
             "debt_amount" => $this->debt_amount,
             "promotion_amount" => $this->promotion_amount,
             "sub_total" => $this->sub_total,
+            "order_date" => $this->order_date,
             "total" => $this->total,
             "deli_fee" => $this->deli_fee,
             "customer_name" => $this->customer_name,
