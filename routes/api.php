@@ -116,12 +116,13 @@ Route::prefix("v1")->group(function () {
         Route::apiResource('delis', DeliController::class)->except(['deliWay']);
         Route::prefix('delis')->group(function () {
             Route::get('ways/get', [DeliController::class, 'deliWay']);
+            // Route::get('ways/export', [DeliController::class, 'excelExport']);
         });
     });
 
     Route::get("app-settings", [AppSettingController::class, "index"]);
 
 
-
+    Route::get('/delis/ways/export', [DeliController::class, 'excelExport']);
     Route::post("auth/login", [AuthController::class, 'login']);
 });
