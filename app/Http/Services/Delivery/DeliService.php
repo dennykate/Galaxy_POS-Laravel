@@ -17,7 +17,7 @@ class DeliService
         $new_deli = User::create([
             'name' => $request->name,
             'phone' => $request->phone,
-            'role' => 'staff',
+            'role' => 'deli',
             'password' => Hash::make($request->password)
         ]);
 
@@ -29,7 +29,7 @@ class DeliService
     public static function index(Request $request)
     {
         $delis = HelperController::findAllQuery(new User(), $request, ['name', 'phone', 'email'], [
-            ['role', '=', 'staff']
+            ['role', '=', 'deli']
         ]);
 
         return DeliResource::collection($delis);

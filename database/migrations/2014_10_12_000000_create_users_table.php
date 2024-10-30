@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('phone');
             $table->string('address')->nullable();
             $table->string('position')->nullable();
-            $table->enum('role', ["admin", "cashier", "manager", "staff"]);
+            $table->enum('role', ["admin", "cashier", "manager", "staff", "deli"]);
             $table->enum('gender', ["ကျား", "မ"]);
             $table->integer('salary')->nullable();
             $table->timestamp("birth_date")->nullable();

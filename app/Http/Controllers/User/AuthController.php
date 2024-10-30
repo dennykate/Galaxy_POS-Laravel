@@ -34,8 +34,8 @@ class AuthController extends Controller
                 "name" => $userInfo->name,
                 "profile" =>  HelperController::parseReturnImage($userInfo->profile),
                 "normal_id" => $userInfo->id,
-                "gender" => $userInfo->gender
-
+                "gender" => $userInfo->gender,
+                "role" => Auth::user()->role,
             ]
         ]);
     }

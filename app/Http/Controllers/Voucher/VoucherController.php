@@ -17,7 +17,7 @@ class VoucherController extends Controller
      */
     public function index(Request $request)
     {
-        if (!Gate::allows("checkPermission", "manager")) return response()->json(["message" => "လုပ်ပိုင်ခွင့်မရှိပါ"], 403);
+        if (!Gate::allows("checkPermission", "manager,deli")) return response()->json(["message" => "လုပ်ပိုင်ခွင့်မရှိပါ"], 403);
         $vouchers = HelperController::findAllQuery(new Voucher, $request, [
             "voucher_number",
             "cost",
