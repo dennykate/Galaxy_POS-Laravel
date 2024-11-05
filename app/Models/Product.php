@@ -10,7 +10,14 @@ class Product extends Model
     use HasFactory;
 
     protected $fillable = [
-        "name", "image", "actual_price", "primary_unit_id", "primary_price", "remark", "stock", "user_id",
+        "name",
+        "image",
+        "actual_price",
+        "primary_unit_id",
+        "primary_price",
+        "remark",
+        "stock",
+        "user_id",
         "promotion_id"
     ];
 
@@ -49,5 +56,10 @@ class Product extends Model
     public function promotion()
     {
         return $this->belongsTo(Promotion::class);
+    }
+
+    public function primaryUnit()
+    {
+        return $this->belongsTo(Unit::class, 'primary_unit_id');
     }
 }

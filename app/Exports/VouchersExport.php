@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use App\Models\VoucherRecord;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
@@ -20,17 +21,17 @@ class VouchersExport implements \Maatwebsite\Excel\Concerns\FromCollection, \Maa
     public function collection()
     {
         return $this->data->map(function ($item) {
+            $voucher_records = VoucherRecord::where(['voucher_id' => $item->id])->get();
             return [
                 'voucher_number' => $item->voucher_number,
-                'order_date' => $this->formatOrderDate($item->order_date),
+                'items' => $voucher_records->map(fn($voucher_record) => $voucher_record->product->name)->join(', '),
                 'total' => $item->total,
-                'sub_total' => $item->sub_total,
-                'deli_fee' => $item->deli_fee,
                 'customer_name' => $item->customer_name,
-                'customer_phone' =>  " $item->customer_phone",
+                'customer_phone' => $item->customer_phone,
                 'customer_city' => $item->customer_city,
                 'customer_address' => $item->customer_address,
                 'payment_method' => $item->payment_method,
+                'order_date' => $this->formatOrderDate($item->order_date),
             ];
         });
     }
@@ -42,16 +43,15 @@ class VouchersExport implements \Maatwebsite\Excel\Concerns\FromCollection, \Maa
     public function headings(): array
     {
         return [
-            'Voucher Number',
-            'Order Date',
-            'Total',
-            'Sub Total',
-            'Delivery Fee',
-            'Name',
-            'Phone',
-            'City',
-            'Address',
-            'Payment Method',
+            'ဘောင်ချာနံပါတ်',
+            'ပစ္စည်းများ',
+            'စုစုပေါင်း',
+            'အမည်',
+            'ဖုန်းနံပါတ်',
+            'မြို့',
+            'လိပ်စာ',
+            'ငွေပေးချေမှုနည်းလမ်း',
+            'မှာယူသည့်ရက်စွဲ',
         ];
     }
 
