@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\HelperController;
 use App\Http\Resources\Voucher\VoucherDetailResource;
 use App\Http\Resources\VouchersResource;
+use App\Models\ConversionFactor;
 use App\Models\Voucher;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
 class VoucherController extends Controller
@@ -61,14 +63,58 @@ class VoucherController extends Controller
      */
     public function destroy(string $id)
     {
-        $voucher = Voucher::find(decrypt($id));
+        try {
+            DB::beginTransaction();
 
-        if (!$voucher) {
-            return response()->json(["message" => "ဘောက်ချာမရှိပါ", 400]);
+            $voucher = Voucher::with('voucherRecords.product')->find(decrypt($id));
+
+            if (!$voucher) {
+                return response()->json(["message" => "ဘောက်ချာမရှိပါ"], 400);
+            }
+
+            // Process each voucher record to restore stock
+            foreach ($voucher->voucherRecords as $record) {
+                $product = $record->product;
+
+                if ($record->unit_id == $product->primary_unit_id) {
+                    // If units are same, directly add quantity
+                    $product->stock += $record->quantity;
+                } else {
+                    // If units are different, need to convert
+                    $conversionFactor = ConversionFactor::where(function ($query) use ($record, $product) {
+                        $query->where('from_unit_id', $record->unit_id)
+                            ->where('to_unit_id', $product->primary_unit_id);
+                    })->orWhere(function ($query) use ($record, $product) {
+                        $query->where('from_unit_id', $product->primary_unit_id)
+                            ->where('to_unit_id', $record->unit_id);
+                    })->first();
+
+                    if ($conversionFactor) {
+                        if ($conversionFactor->from_unit_id == $record->unit_id) {
+                            // Convert from record unit to primary unit
+                            $convertedQuantity = $record->quantity * $conversionFactor->value;
+                        } else {
+                            // Convert from primary unit to record unit
+                            $convertedQuantity = $record->quantity / $conversionFactor->value;
+                        }
+
+                        $product->stock += $convertedQuantity;
+                    } else {
+                        throw new \Exception("Conversion factor not found for units");
+                    }
+                }
+
+                $product->save();
+            }
+
+            $voucher->delete(); // This will cascade delete voucher_records due to foreign key constraint
+
+            DB::commit();
+
+            return response()->json(["message" => "ဘောက်ချာဖျက်ခြင်း အောင်မြင်ပါသည်"]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(["message" => "Error: " . $e->getMessage()], 500);
         }
-
-        $voucher->delete();
-
-        return response()->json(["message" => "ဘောက်ချာဖျက်ခြင်း အောင်မြင်ပါသည်"]);
     }
 }
