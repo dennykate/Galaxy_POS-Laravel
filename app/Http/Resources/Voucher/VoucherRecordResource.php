@@ -42,16 +42,3 @@ class VoucherRecordResource extends JsonResource
         ];
     }
 }
-
-
-{
-"id": data.id,
-    "primary_unit_id": data.primary_unit_id,
-    "primary_price": data.primary_price,
-    "categories": data.categories,
-    "units": data.units,
-    "promotion": data.promotion,
-    "buy_unit": data.unit_id,
-    "buy_quantity": data.quantity,
-    "total_price": data.cost
-}
