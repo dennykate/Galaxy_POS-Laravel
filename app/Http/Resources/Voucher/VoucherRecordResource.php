@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Voucher;
 
 use App\Http\Controllers\HelperController;
+use App\Models\Unit;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -15,14 +16,42 @@ class VoucherRecordResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+
+        $productUnits = array_map(function ($item) {
+            $item['name'] = Unit::find($item['unit_id'])->name;
+
+            return $item;
+        }, $this->product->productUnits->toArray());
+
         return [
             "id" => $this->id,
             "product" => $this->product,
             "image" => HelperController::parseReturnImage($this->product->image),
             "name" => $this->product->name,
             "unit" => $this->unit->name,
+            "unit_id" => $this->unit->id,
+            // "unit_info" => $this->unit,
             "quantity" => $this->quantity,
             "cost" => $this->cost,
+            "primary_unit_id" => $this->product->primary_unit_id,
+            "primary_price" => $this->product->primary_price,
+            "stock" => $this->product->stock,
+            "categories" => $this->product->categories,
+            "units" => $productUnits,
+            "promotion" => $this->promotion
         ];
     }
+}
+
+
+{
+"id": data.id,
+    "primary_unit_id": data.primary_unit_id,
+    "primary_price": data.primary_price,
+    "categories": data.categories,
+    "units": data.units,
+    "promotion": data.promotion,
+    "buy_unit": data.unit_id,
+    "buy_quantity": data.quantity,
+    "total_price": data.cost
 }
