@@ -32,28 +32,42 @@ class EditCheckoutController extends Controller
         $total_profit = 0;
         $total_quantity = 0;
 
+        // Get all existing voucher records for this order
+        $existingVoucherRecords = VoucherRecord::where('voucher_id', $order->id)->get();
+
+        // Keep track of the IDs of the voucher records that are still in the request
+        $updatedVoucherRecordIds = [];
+
         foreach ($request['orders'] as $req_order) {
             $product = Product::find($req_order['product']['id']);
             $cost = $req_order['quantity'] * $product->primary_price;
-            $actual_cost = $req_order["quantity"] *   $product->actual_price;
+            $actual_cost = $req_order["quantity"] * $product->actual_price;
 
-            $new_stock =  $product->stock - $req_order["quantity"];
+            $new_stock = $product->stock - $req_order["quantity"];
 
             if ($req_order['id']) {
+                // Update existing voucher record
                 $voucher_record = VoucherRecord::find($req_order['id']);
 
                 $voucher_record->quantity = $req_order['quantity'];
                 $voucher_record->cost = $cost;
 
                 $voucher_record->save();
+
+                // Add the ID to the list of updated records
+                $updatedVoucherRecordIds[] = $voucher_record->id;
             } else {
+                // Create a new voucher record
                 $voucher_record = VoucherRecord::create([
                     "unit_id" => $product->primary_unit_id,
                     "product_id" => $product->id,
                     "quantity" => $req_order['quantity'],
                     "cost" => $cost,
-                    "voucher_id" => $id
+                    "voucher_id" => $order->id
                 ]);
+
+                // Add the ID to the list of updated records
+                $updatedVoucherRecordIds[] = $voucher_record->id;
             }
 
             $total_cost += $cost;
@@ -64,11 +78,17 @@ class EditCheckoutController extends Controller
             $product->save();
         }
 
+        // Delete voucher records that are no longer in the request
+        foreach ($existingVoucherRecords as $existingVoucherRecord) {
+            if (!in_array($existingVoucherRecord->id, $updatedVoucherRecordIds)) {
+                $existingVoucherRecord->delete();
+            }
+        }
+
         $order->sub_total = $total_cost;
         $order->total = $total_cost + $request->deli_fee;
-        $order->deli_fee = $request->deli_fee;
         $order->profit = $total_profit;
-        $order->actual_cost =  $total_actual_cost ?? 0;
+        $order->actual_cost = $total_actual_cost ?? 0;
 
         $order->save();
 
