@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Set variables
-BACKUP_PATH="/var/www/api.kyimeldrive.com"
+BACKUP_PATH="/var/www/galaxy-pos"
 DATE=$(date +%Y%m%d_%H%M%S)
 BACKUP_NAME="database_backup_$DATE"
 
