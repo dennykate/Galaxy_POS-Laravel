@@ -1,14 +1,14 @@
 #!/bin/bash
 
 # Set variables
-BACKUP_PATH="/var/www/galaxy-pos"
+BACKUP_PATH="/var/www/galaxy-pos"  # Updated path
 DATE=$(date +%Y%m%d_%H%M%S)
 BACKUP_NAME="database_backup_$DATE"
 
-# Database credentials - update these with your actual credentials
-DB_USER="root"  # or your database user
-DB_PASS="your_actual_password"
-DB_NAME="galaxy_pos"  # assuming this is your database name
+# Database credentials
+DB_USER="dennykate"
+DB_PASS="11223344"
+DB_NAME="galaxy_food_and_drink"
 
 # Create backup directory if it doesn't exist
 mkdir -p $BACKUP_PATH/backups
