@@ -17,36 +17,70 @@ class ProductSeeder extends Seeder
 
         $products = [
             [
-                'name' => 'ကြက်ကင်',
-                'price' => 22000,
-                'image' => 'https://i.postimg.cc/Xv8pf17d/1.jpg'
+                'name' => 'ရေဦးပဲငပိ',
+                'image' => 'https://api.kyimeldrive.com/storage/images/7oQUsxU76OoNnKLFi7YTz1QyrQmuTRWK2mqXtAoQ.jpg',
+                'price' => 2500
             ],
             [
-                'name' => 'ငါးကြင်းပေါင်း',
-                'price' => 15000,
-                'image' => 'https://i.postimg.cc/3x2yRJsL/123.jpg'
+                'name' => 'ပါကင်ထုတ်ခ',
+                'image' => 'https://api.kyimeldrive.com/storage/images/4RgTtONgxugljfreSD2AZOTdkdaALHgx6EXSHCZR.jpg',
+                'price' => 1500
+            ],
+            [
+                'name' => 'ကရင်ငပိချက်',
+                'image' => 'https://api.kyimeldrive.com/storage/images/SJi1R5TTN3Km8QUU5R8RuLcarj2zS57eJgJrn7FS.jpg',
+                'price' => 6000
+            ],
+            [
+                'name' => 'ငါးခေါင်းငပိချက်',
+                'image' => 'https://api.kyimeldrive.com/storage/images/MbC2OhNrrunomI1PdCbIhfNWGdhATGAOhNPu2wGX.jpg',
+                'price' => 4000
+            ],
+            [
+                'name' => 'ရခိုင်ငပိထောင်း',
+                'image' => 'https://api.kyimeldrive.com/storage/images/AJBhGVbsS8U8GiAlmoVowO6n8mtTgcL9kKYnnOyV.jpg',
+                'price' => 1500
+            ],
+            [
+                'name' => 'ဝက်သားနီချက်',
+                'image' => 'https://api.kyimeldrive.com/storage/images/tlr8SjZTFKAYtYcRBoCfmZ4og7WPPovruhMfJ5ME.jpg',
+                'price' => 10000
+            ],
+            [
+                'name' => 'ဘဲဥသီးစုံဟင်း',
+                'image' => 'https://api.kyimeldrive.com/storage/images/hhwREDW20ChhLC11Z5lGI4tEEWwMvkNzoamLBHvr.jpg',
+                'price' => 5000
+            ],
+            [
+                'name' => 'ငါးခူကြော်နှပ်',
+                'image' => 'https://api.kyimeldrive.com/storage/images/cFZH5TY9L0yN3DuwDXXo3N998wY8ahIivaPPqSHp.jpg',
+                'price' => 15000
+            ],
+            [
+                'name' => 'ပဲတီချဉ်',
+                'image' => 'https://i.postimg.cc/PrdNTr8y/photo-2024-02-03-20-49-42.jpg',
+                'price' => 1000
+            ],
+            [
+                'name' => 'ငါးခေါင်းတုံယမ်း',
+                'image' => 'https://i.postimg.cc/15w6gH6c/3.jpg',
+                'price' => 7000
+            ],
+            [
+                'name' => 'မန်ကျည်း',
+                'image' => 'https://i.postimg.cc/MHj6F9xs/2.jpg',
+                'price' => 10000
+            ],
+            [
+                'name' => 'ပါလခေါင်ကြော်',
+                'image' => 'https://i.postimg.cc/52Jz8CSc/4.jpg',
+                'price' => 10000
             ],
             [
                 'name' => 'အမဲမြေအိုးနှပ်',
-                'price' => 12000,
-                'image' => 'https://i.postimg.cc/qvQNnZ7n/5.jpg'
-            ],
-            [
-                'name' => 'ငါးကြင်းခေါင်းတုံယမ်း',
-                'price' => 7000,
-                'image' => 'https://i.postimg.cc/15w6gH6c/3.jpg'
-            ],
-            [
-                'name' => 'မန်ကျီးသီးစိမ်းထောင်း',
-                'price' => 10000,
-                'image' => 'https://i.postimg.cc/MHj6F9xs/2.jpg'
-            ],
-            [
-                'name' => 'ပါလချောင်ကြော်',
-                'price' => 10000,
-                'image' => 'https://i.postimg.cc/52Jz8CSc/4.jpg'
-            ],
-
+                'image' => 'https://i.postimg.cc/qvQNnZ7n/5.jpg',
+                'price' => 12000
+            ]
         ];
 
         foreach ($products as $product) {
