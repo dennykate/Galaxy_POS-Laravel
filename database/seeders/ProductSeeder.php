@@ -334,17 +334,6 @@ class ProductSeeder extends Seeder
         DB::table('products')->insert($chunk);
     }
 
-    // Insert product_units data
-    $productUnits = [
-        [
-            'product_id' => 4,
-            'unit_id' => 10,
-            'price' => 14000,
-        ]
-    ];
-
-    DB::table('product_units')->insert($productUnits);
-
 } finally {
     // Re-enable foreign key checks
     DB::statement('SET FOREIGN_KEY_CHECKS=1;');

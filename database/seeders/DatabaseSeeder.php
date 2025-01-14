@@ -30,7 +30,7 @@ class DatabaseSeeder extends Seeder
             // PromotionSeeder::class,
             ProductSeeder::class,
             // RecordSeeder::class,
-            VoucherSeeder::class,
+            // VoucherSeeder::class,
         ]);
     }
 }
