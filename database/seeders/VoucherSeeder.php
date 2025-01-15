@@ -2,219 +2,172 @@
 
 namespace Database\Seeders;
 
-use App\Models\Product;
-use App\Models\Voucher;
-use App\Models\VoucherRecord;
-use Carbon\Carbon;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class VoucherSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        function yearSeeding($year, $month)
-        {
-            for ($m = 1; $m <= $month; $m++) {
-                $startDate = Carbon::createFromDate($year, $m, 1);
-                $endDate = Carbon::createFromDate($year, $m, 1)->endOfMonth();
+        try {
+            // Read SQL file
+            $sqlPath = base_path('database/sql/database_backup.sql');
+            if (!file_exists($sqlPath)) {
+                throw new \Exception("SQL file not found at: {$sqlPath}");
+            }
 
-                $numberOfDays = $startDate->diffInDays($endDate) + 1;
-                $monthly_total_cash = 0;
-                $monthly_total_tax = 0;
-                $monthly_total_vouchers = 0;
+            $sql = file_get_contents($sqlPath);
+            Log::info("SQL file loaded, length: " . strlen($sql));
 
-                for ($d = 1; $d <= $numberOfDays; $d++) {
-                    $total_vouchers = rand(10, 15);
+            // Extract vouchers data with more specific pattern
+            preg_match("/INSERT INTO `vouchers`\s+VALUES\s*\((.*?)\);/s", $sql, $voucherMatches);
+            if (!empty($voucherMatches[1])) {
+                Log::info("Found vouchers data");
+                $voucherValues = $this->parseValues($voucherMatches[1]);
+                Log::info("Parsed voucher records: " . count($voucherValues));
+                
+                if (empty($voucherValues)) {
+                    Log::error("No voucher values were parsed");
+                    return;
+                }
 
-                    for ($i = 0; $i < $total_vouchers; $i++) {
-                        $voucher_records = [];
-                        for ($j = 0; $j < 3; $j++) {
-                            $productId = rand(1, 8);
-                            $product = Product::find($productId);
+                // Log first voucher for debugging
+                Log::info("First voucher data:", ['data' => $voucherValues[0]]);
 
-                            $quantity = rand(1, 10);
+                // Disable foreign key checks
+                DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
-                            $voucher_records[] = [
-                                "product_id" => $productId,
-                                "price" => $product->primary_price,
-                                "quantity" => $quantity,
-                                "cost" => $product->primary_price * $quantity,
-                            ];
-                        };
-
-                        $date = Carbon::create($year, $m, $d)->setTime(rand(9, 16), rand(0, 59), rand(0, 59));
-                        $total = 0;
-                        foreach ($voucher_records as $record) {
-                            $total += $record["quantity"] * $record["price"];
-                        };
-                        $tax = $total * 0.05;
-                        $net_total = $total + $tax;
-                        $voucher = [
-                            "voucher_number" => Voucher::generateVoucherNumber(),
-                            "cost" => $total,
-                            "profit" => 300,
-                            "pay_amount" => $total,
-                            "change" => 0,
-                            "debt_amount" => 0,
-                            "promotion_amount" => 0,
-                            "user_id" => 1,
-                            "created_at" => $date,
-                            "updated_at" => $date,
-                        ];
-                        $vouchers[] = $voucher;
-
-                        $store_voucher = Voucher::create($voucher);
-
-                        $records = [];
-                        foreach ($voucher_records as $record) {
-                            $records[] = [
-                                "voucher_id" => $store_voucher->id,
-                                "product_id" => $record["product_id"],
-                                "cost" => $record["price"],
-                                "quantity" => $record["quantity"],
-                                "cost" => $record["cost"],
-                                "unit_id" => $product->primary_unit_id,
-                                "created_at" => $date,
-                                "updated_at" => $date
-                            ];
+                try {
+                    // Clear existing data
+                    DB::table('vouchers')->truncate();
+                    Log::info("Truncated vouchers table");
+                    
+                    // Insert vouchers in smaller chunks
+                    foreach (array_chunk($voucherValues, 50) as $i => $chunk) {
+                        try {
+                            DB::table('vouchers')->insert($chunk);
+                            Log::info("Inserted chunk " . ($i + 1) . " of vouchers");
+                        } catch (\Exception $e) {
+                            Log::error("Error inserting voucher chunk " . ($i + 1) . ": " . $e->getMessage());
+                            Log::error("First record in problematic chunk:", ['data' => reset($chunk)]);
+                            throw $e;
                         }
-
-                        VoucherRecord::insert($records);
                     }
+                } catch (\Exception $e) {
+                    Log::error("Error during vouchers insertion: " . $e->getMessage());
+                    throw $e;
+                }
+            } else {
+                Log::warning("No vouchers data found in SQL file");
+                Log::info("SQL file preview (first 500 chars): " . substr($sql, 0, 500));
+            }
 
-                    // $total_cash = array_reduce($vouchers, fn ($pv, $cv) => $pv + $cv["net_total"], 0);
-                    // $total_tax = array_reduce($vouchers, fn ($pv, $cv) => $pv + $cv["tax"], 0);
+            // Extract voucher_records data
+            preg_match("/INSERT INTO `voucher_records`\s+VALUES\s*\((.*?)\);/s", $sql, $recordMatches);
+            if (!empty($recordMatches[1])) {
+                Log::info("Found voucher_records data");
+                $recordValues = $this->parseValues($recordMatches[1]);
+                Log::info("Parsed voucher_record records: " . count($recordValues));
 
-                    // $monthly_total_cash += $total_cash;
-                    // $monthly_total_tax += $total_tax;
-                    // $monthly_total_vouchers += $total_vouchers;
-
-                    // SaleRecord::insert([
-                    //     "total_cash" => $total_cash,
-                    //     "total_tax" => $total_tax,
-                    //     "total_net_total" => $total_cash + $total_tax,
-                    //     "total_vouchers" => $total_vouchers,
-                    //     "status" => "daily",
-                    //     "user_id" => rand(1, 10),
-                    //     "created_at" => $date,
-                    //     "updated_at" => $date,
-                    // ]);
-
-                    if ($d == $numberOfDays) {
-                        // SaleRecord::insert([
-                        //     "total_cash" => $monthly_total_cash,
-                        //     "total_tax" => $monthly_total_tax,
-                        //     "total_net_total" => $monthly_total_cash + $monthly_total_tax,
-                        //     "total_vouchers" => $monthly_total_vouchers,
-                        //     "status" => "monthly",
-                        //     "user_id" => rand(1, 10),
-                        //     "created_at" => $date,
-                        //     "updated_at" => $date,
-                        // ]);
-                    }
+                if (empty($recordValues)) {
+                    Log::error("No voucher_record values were parsed");
+                    return;
                 }
 
-                $vouchers = [];
+                try {
+                    // Clear existing data
+                    DB::table('voucher_records')->truncate();
+                    Log::info("Truncated voucher_records table");
+                    
+                    // Insert records in smaller chunks
+                    foreach (array_chunk($recordValues, 50) as $i => $chunk) {
+                        try {
+                            DB::table('voucher_records')->insert($chunk);
+                            Log::info("Inserted chunk " . ($i + 1) . " of voucher_records");
+                        } catch (\Exception $e) {
+                            Log::error("Error inserting voucher_record chunk " . ($i + 1) . ": " . $e->getMessage());
+                            Log::error("First record in problematic chunk:", ['data' => reset($chunk)]);
+                            throw $e;
+                        }
+                    }
+                } catch (\Exception $e) {
+                    Log::error("Error during voucher_records insertion: " . $e->getMessage());
+                    throw $e;
+                }
+            } else {
+                Log::warning("No voucher_records data found in SQL file");
             }
+
+        } catch (\Exception $e) {
+            Log::error("VoucherSeeder failed: " . $e->getMessage());
+            throw $e;
+        } finally {
+            DB::statement('SET FOREIGN_KEY_CHECKS=1;');
         }
+    }
 
-
-        function currentMonth()
-        {
-            $numberOfDays = intval(Carbon::now()->day);
-            $monthly_total_cash = 0;
-            $monthly_total_tax = 0;
-            $monthly_total_vouchers = 0;
-
-            for ($d = 1; $d < $numberOfDays; $d++) {
-                $total_vouchers = rand(10, 15);
-
-                for ($i = 0; $i < $total_vouchers; $i++) {
-                    $voucher_records = [];
-                    for ($j = 0; $j < 3; $j++) {
-                        $productId = rand(1, 8);
-                        $product = Product::find($productId);
-
-                        $quantity = rand(1, 10);
-
-                        $voucher_records[] = [
-                            "product_id" => $productId,
-                            "price" => $product->primary_price,
-                            "quantity" => $quantity,
-                            "cost" => $product->primary_price * $quantity,
-                        ];
-                    };
-
-                    $date = Carbon::create(2023, 10, $d)->setTime(rand(9, 16), rand(0, 59), rand(0, 59));
-                    $total = 0;
-                    foreach ($voucher_records as $record) {
-                        $total += $record["quantity"] * $record["price"];
-                    };
-                    $tax = $total * 0.05;
-                    $net_total = $total + $tax;
-                    $voucher = [
-                        "voucher_number" => Voucher::generateVoucherNumber(),
-                        "cost" => $total,
-                        "profit" => 300,
-                        "pay_amount" => $total,
-                        "change" => 0,
-                        "debt_amount" => 0,
-                        "promotion_amount" => 0,
-                        "user_id" => 1,
-                        "created_at" => $date,
-                        "updated_at" => $date,
+    private function parseValues(string $valuesString): array
+    {
+        $valuesString = trim($valuesString);
+        $valueGroups = explode('),(', trim($valuesString, '()'));
+        
+        $result = [];
+        foreach ($valueGroups as $index => $group) {
+            try {
+                // Replace NULL with actual null value
+                $group = preg_replace("/('NULL'|NULL)/", "null", $group);
+                
+                $values = str_getcsv($group, ',', "'");
+                
+                if (count($values) === 23) { // Vouchers table
+                    $result[] = [
+                        'id' => trim($values[0]),
+                        'voucher_number' => trim($values[1], "' "),
+                        'sub_total' => (int)$values[2],
+                        'total' => (int)$values[3],
+                        'deli_fee' => (int)$values[4],
+                        'actual_cost' => (int)$values[5],
+                        'profit' => (int)$values[6],
+                        'pay_amount' => (int)$values[7],
+                        'reduce_amount' => (int)$values[8],
+                        'change' => (int)$values[9],
+                        'debt_amount' => (int)$values[10],
+                        'promotion_amount' => (int)$values[11],
+                        'user_id' => (int)$values[12],
+                        'customer_name' => trim($values[13], "' "),
+                        'customer_phone' => trim($values[14], "' "),
+                        'customer_city' => trim($values[15], "' "),
+                        'customer_address' => trim($values[16], "' "),
+                        'payment_method' => trim($values[17], "' "),
+                        'status' => $values[18] === 'null' ? null : trim($values[18], "' "),
+                        'remark' => $values[19] === 'null' ? null : trim($values[19], "' "),
+                        'order_date' => trim($values[20], "' "),
+                        'created_at' => trim($values[21], "' "),
+                        'updated_at' => trim($values[22], "' "),
                     ];
-                    $vouchers[] = $voucher;
-
-                    $store_voucher = Voucher::create($voucher);
-
-                    $records = [];
-                    foreach ($voucher_records as $record) {
-                        $records[] = [
-                            "voucher_id" => $store_voucher->id,
-                            "product_id" => $record["product_id"],
-                            "cost" => $record["price"],
-                            "quantity" => $record["quantity"],
-                            "cost" => $record["cost"],
-                            "unit_id" => $product->primary_unit_id,
-                            "created_at" => $date,
-                            "updated_at" => $date
-                        ];
-                    }
-
-                    VoucherRecord::insert($records);
+                } elseif (count($values) === 8) { // Voucher_records table
+                    $result[] = [
+                        'id' => trim($values[0]),
+                        'cost' => (int)$values[1],
+                        'quantity' => (float)$values[2],
+                        'unit_id' => (int)$values[3],
+                        'product_id' => (int)$values[4],
+                        'voucher_id' => (int)$values[5],
+                        'created_at' => trim($values[6], "' "),
+                        'updated_at' => trim($values[7], "' "),
+                    ];
+                } else {
+                    Log::warning("Skipping record with unexpected number of values: " . count($values));
+                    Log::warning("Values: " . json_encode($values));
                 }
-
-
-                // $total_cash = array_reduce($vouchers, fn ($pv, $cv) => $pv + $cv["net_total"], 0);
-                // $total_tax = array_reduce($vouchers, fn ($pv, $cv) => $pv + $cv["tax"], 0);
-
-                // $monthly_total_cash += $total_cash;
-                // $monthly_total_tax += $total_tax;
-                // $monthly_total_vouchers += $total_vouchers;
-
-                // SaleRecord::insert([
-                //     "total_cash" => $total_cash,
-                //     "total_tax" => $total_tax,
-                //     "total_net_total" => $total_cash + $total_tax,
-                //     "total_vouchers" => $total_vouchers,
-                //     "status" => "daily",
-                //     "user_id" => rand(1, 10),
-                //     "created_at" => $date,
-                //     "updated_at" => $date,
-                // ]);
-
-                $vouchers = [];
+            } catch (\Exception $e) {
+                Log::error("Error parsing group {$index}: " . $e->getMessage());
+                Log::error("Problematic group: " . $group);
+                throw $e;
             }
         }
-
-        // firstYear();
-        // yearSeeding(2022, 12);
-        yearSeeding(2023, 12);
-        currentMonth();
+        
+        return $result;
     }
 }

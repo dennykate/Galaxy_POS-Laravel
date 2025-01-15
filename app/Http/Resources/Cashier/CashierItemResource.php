@@ -20,10 +20,12 @@ class CashierItemResource extends JsonResource
 
         return [
             "id" => encrypt($this->id),
+            "normal_id" => $this->id,
             "name" => $this->name,
             "stock" => $this->stock,
             "image" => HelperController::parseReturnImage($this->image),
             "primary_unit_id" =>  $primary_unit_id,
+            "normal_primary_unit_id" => $this->primary_unit_id,
             "primary_price" => $this->primary_price,
             "categories" => ProductCategoryResource::collection($this->categories),
             "units" =>  [

@@ -17,6 +17,7 @@ class EditCheckoutController extends Controller
 
         if (!$order) throw new NotFoundHttpException('Order not found');
 
+        // Update order details
         $order->customer_name = $request->customer_name ?? $order->customer_name;
         $order->customer_phone = $request->customer_phone ?? $order->customer_phone;
         $order->customer_city = $request->customer_city ?? $order->customer_city;
@@ -27,71 +28,55 @@ class EditCheckoutController extends Controller
         $order->remark = $request->remark ?? $order->remark;
         $order->order_date = $request->order_date ?? $order->order_date;
 
+        // Initialize totals
         $total_cost = 0;
         $total_actual_cost = 0;
         $total_profit = 0;
-        $total_quantity = 0;
 
-        // Get all existing voucher records for this order
-        $existingVoucherRecords = VoucherRecord::where('voucher_id', $order->id)->get();
+        // Delete all existing voucher records for this order
+        VoucherRecord::where('voucher_id', $order->id)->delete();
 
-        // Keep track of the IDs of the voucher records that are still in the request
-        $updatedVoucherRecordIds = [];
-
+        // Process each order item
         foreach ($request['orders'] as $req_order) {
+            // Calculate costs based on the product data from request
+            $quantity = $req_order['quantity'];
+            $primary_price = $req_order['product']['primary_price'];
+            $actual_price = $req_order['product']['actual_price'];
+            
+            $cost = $quantity * $primary_price;
+            $actual_cost = $quantity * $actual_price;
+
+            // Create new voucher record
+            VoucherRecord::create([
+                "unit_id" => $req_order['product']['primary_unit_id'],
+                "product_id" => $req_order['product']['id'],
+                "quantity" => $quantity,
+                "cost" => $cost,
+                "voucher_id" => $order->id
+            ]);
+
+            // Update product stock
             $product = Product::find($req_order['product']['id']);
-            $cost = $req_order['quantity'] * $product->primary_price;
-            $actual_cost = $req_order["quantity"] * $product->actual_price;
+            $product->decrement('stock', $quantity);
 
-            $new_stock = $product->stock - $req_order["quantity"];
-
-            if ($req_order['id']) {
-                // Update existing voucher record
-                $voucher_record = VoucherRecord::find($req_order['id']);
-
-                $voucher_record->quantity = $req_order['quantity'];
-                $voucher_record->cost = $cost;
-
-                $voucher_record->save();
-
-                // Add the ID to the list of updated records
-                $updatedVoucherRecordIds[] = $voucher_record->id;
-            } else {
-                // Create a new voucher record
-                $voucher_record = VoucherRecord::create([
-                    "unit_id" => $product->primary_unit_id,
-                    "product_id" => $product->id,
-                    "quantity" => $req_order['quantity'],
-                    "cost" => $cost,
-                    "voucher_id" => $order->id
-                ]);
-
-                // Add the ID to the list of updated records
-                $updatedVoucherRecordIds[] = $voucher_record->id;
-            }
-
+            // Update running totals
             $total_cost += $cost;
             $total_actual_cost += $actual_cost;
             $total_profit += $cost - $actual_cost;
-
-            $product->stock = $new_stock;
-            $product->save();
         }
 
-        // Delete voucher records that are no longer in the request
-        foreach ($existingVoucherRecords as $existingVoucherRecord) {
-            if (!in_array($existingVoucherRecord->id, $updatedVoucherRecordIds)) {
-                $existingVoucherRecord->delete();
-            }
-        }
-
+        // Update order totals
         $order->sub_total = $total_cost;
-        $order->total = $total_cost + $request->deli_fee;
+        $order->total = $total_cost + ($order->deli_fee ?? 0);
         $order->profit = $total_profit;
-        $order->actual_cost = $total_actual_cost ?? 0;
+        $order->actual_cost = $total_actual_cost;
 
         $order->save();
 
-        return response()->json(["message" => "အောင်မြင်ပါသည်", "data" => $order]);
+        return response()->json([
+            "message" => "အောင်မြင်ပါသည်",
+            "version" => "1.0.1",
+            "data" => $order
+        ]);
     }
 }
