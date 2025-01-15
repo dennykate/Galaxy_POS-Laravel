@@ -47,6 +47,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix("v1")->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
+
         Route::post("auth/logout", [AuthController::class, 'logout']);
 
         Route::apiResource("users", UserController::class)->except("update");
@@ -121,6 +122,7 @@ Route::prefix("v1")->group(function () {
     });
 
     Route::get("app-settings", [AppSettingController::class, "index"]);
+    Route::get('/last-order-date', [AppSettingController::class, 'getLastOrderDate']);
 
 
     Route::get('/delis/ways/export', [DeliController::class, 'excelExport']);

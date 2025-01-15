@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AppSetting;
+use App\Models\Voucher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -63,5 +64,26 @@ class AppSettingController extends Controller
 
 
         return response()->json(["message" => "ပြင်ဆင်ခြင်းအောင်မြင်ပါသည်", "data" => $newSetting]);
+    }
+    public function getLastOrderDate()
+    {
+        // Fetch the most recent order_date
+        $lastOrder = Voucher::orderBy('order_date', 'desc')->first();
+
+        if ($lastOrder) {
+            return response()->json([
+                "data" => [
+                    'success' => true,
+                    'last_order_date' => $lastOrder->order_date,
+                ]
+            ]);
+        } else {
+            return response()->json([
+                "data" => [
+                    'success' => false,
+                    'message' => 'No orders found.',
+                ]
+            ], 404);
+        }
     }
 }
