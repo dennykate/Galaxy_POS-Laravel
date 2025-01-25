@@ -33,36 +33,38 @@ class EditCheckoutController extends Controller
         $total_actual_cost = 0;
         $total_profit = 0;
 
-        // Delete all existing voucher records for this order
-        VoucherRecord::where('voucher_id', $order->id)->delete();
+        if ($request->shouldUpdateOrder) {
+            // Delete all existing voucher records for this order
+            VoucherRecord::where('voucher_id', $order->id)->delete();
 
-        // Process each order item
-        foreach ($request['orders'] as $req_order) {
-            // Calculate costs based on the product data from request
-            $quantity = $req_order['quantity'];
-            $primary_price = $req_order['product']['primary_price'];
-            $actual_price = $req_order['product']['actual_price'];
-            
-            $cost = $quantity * $primary_price;
-            $actual_cost = $quantity * $actual_price;
+            // Process each order item
+            foreach ($request['orders'] as $req_order) {
+                // Calculate costs based on the product data from request
+                $quantity = $req_order['quantity'];
+                $primary_price = $req_order['product']['primary_price'];
+                $actual_price = $req_order['product']['actual_price'];
 
-            // Create new voucher record
-            VoucherRecord::create([
-                "unit_id" => $req_order['product']['primary_unit_id'],
-                "product_id" => $req_order['product']['id'],
-                "quantity" => $quantity,
-                "cost" => $cost,
-                "voucher_id" => $order->id
-            ]);
+                $cost = $quantity * $primary_price;
+                $actual_cost = $quantity * $actual_price;
 
-            // Update product stock
-            $product = Product::find($req_order['product']['id']);
-            $product->decrement('stock', $quantity);
+                // Create new voucher record
+                VoucherRecord::create([
+                    "unit_id" => $req_order['product']['primary_unit_id'],
+                    "product_id" => $req_order['product']['id'],
+                    "quantity" => $quantity,
+                    "cost" => $cost,
+                    "voucher_id" => $order->id
+                ]);
 
-            // Update running totals
-            $total_cost += $cost;
-            $total_actual_cost += $actual_cost;
-            $total_profit += $cost - $actual_cost;
+                // Update product stock
+                $product = Product::find($req_order['product']['id']);
+                $product->decrement('stock', $quantity);
+
+                // Update running totals
+                $total_cost += $cost;
+                $total_actual_cost += $actual_cost;
+                $total_profit += $cost - $actual_cost;
+            }
         }
 
         // Update order totals

@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Voucher;
 
 use App\Http\Controllers\HelperController;
+use App\Http\Resources\Cashier\CashierItemUnitResource;
 use App\Models\Unit;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -25,7 +26,18 @@ class VoucherRecordResource extends JsonResource
 
         return [
             "id" => $this->id,
-            "product" => $this->product,
+            "product" => [
+                ...$this->product->toArray(),
+                'units' => [
+                    [
+                        "price" => $this->product->primary_price,
+                        "unit_id" => $this->product->primary_unit_id,
+                        "name" => $this->product->unit->name,
+                        "id" => encrypt($this->id)
+                    ],
+                    ...CashierItemUnitResource::collection($this->product->productUnits)->resolve() // Convert to array
+                ]
+            ],
             "image" => HelperController::parseReturnImage($this->product->image),
             "name" => $this->product->name,
             "unit" => $this->unit->name,
@@ -37,8 +49,11 @@ class VoucherRecordResource extends JsonResource
             "primary_price" => $this->product->primary_price,
             "stock" => $this->product->stock,
             "categories" => $this->product->categories,
-            "units" => $productUnits,
-            "promotion" => $this->promotion
+            "units" => [
+                ["price" => $this->product->primary_price, "unit_id" =>  $this->product->primary_unit_id, "name" => $this->product->unit->name, "id" => $this->id],
+                ...$productUnits
+            ],
+            "promotion" => $this->promotion,
         ];
     }
 }
