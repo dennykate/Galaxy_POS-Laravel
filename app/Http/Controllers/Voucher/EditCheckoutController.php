@@ -65,13 +65,15 @@ class EditCheckoutController extends Controller
                 $total_actual_cost += $actual_cost;
                 $total_profit += $cost - $actual_cost;
             }
-        }
 
-        // Update order totals
-        $order->sub_total = $total_cost;
-        $order->total = $total_cost + ($order->deli_fee ?? 0);
-        $order->profit = $total_profit;
-        $order->actual_cost = $total_actual_cost;
+            $order->sub_total = $total_cost;
+            $order->total = $total_cost + ($order->deli_fee ?? 0);
+            $order->profit = $total_profit;
+            $order->actual_cost = $total_actual_cost;
+        }else {
+            $order->total = $order->sub_total + ($request->deli_fee ?? 0);
+        }
+       
 
         $order->save();
 
